@@ -1,0 +1,175 @@
+<section
+	class="container"
+	data-page="trusted"
+	data-chain-id="820"
+>
+  <%= render BlockScoutWeb.Advertisement.TextAdView, "index.html", conn: @conn %>
+  <div class="card">
+    <div class="card-body" data-async-load data-async-listing="<%= @current_path %>">
+	  <h1 class="card-title list-title-description"><%= gettext "Trusted Tokens" %></h1>
+
+    <div class="addresses-table-container">
+      <div class="stakes-table-container">
+	<table>
+	  <thead>
+	    <tr>
+	      <th class="stakes-table-th">
+			<div class="stakes-table-th-content">Token</div>
+	      </th>
+		  <th class="stakes-table-th">
+			<div class="stakes-table-th-content">Symbol</div>
+	      </th>
+	      <th class="stakes-table-th">
+			<div class="stakes-table-th-content">Address</div>
+	      </th>
+	      <th class="stakes-table-th">
+			<div class="stakes-table-th-content">Standard</div>
+	      </th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr>
+			<td class="stakes-td">SOY Finance</td>
+			<td class="stakes-td">SOY</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0x9FaE2529863bD691B4A7171bDfCf33C7ebB10a65">0x9FaE2529863bD691B4A7171bDfCf33C7ebB10a65</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+	    <tr>
+			<td class="stakes-td">Bulls USDT</td>
+			<td class="stakes-td">BUSDT</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xbf6c50889d3a620eb42C0F188b65aDe90De958c4">0xbf6c50889d3a620eb42C0F188b65aDe90De958c4</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+	    <tr>
+			<td class="stakes-td">Callisto Enterprise</td>
+			<td class="stakes-td">CLOE</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187">0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Fantom</td>
+			<td class="stakes-td">ccFTM</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcc50aB63766660C6C1157B8d6A5D51ceA82Dff34">0xcc50aB63766660C6C1157B8d6A5D51ceA82Dff34</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Linear</td>
+			<td class="stakes-td">ccLINA</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC10A4050917f771210407DF7A4C048e8934332c">0xCC10A4050917f771210407DF7A4C048e8934332c</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Shiba Inu</td>
+			<td class="stakes-td">ccSHIB</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcca4f2ed7fc093461c13f7f5d79870625329549a">0xcca4f2ed7fc093461c13f7f5d79870625329549a</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Mars Ecosystem</td>
+			<td class="stakes-td">ccXMS</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcc45afedd2065EDcA770801055d1E376473a871B">0xcc45afedd2065EDcA770801055d1E376473a871B</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Antex</td>
+			<td class="stakes-td">ccANTEX</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCCd792f5D06b73685a1b54A32fE786346cAd1894">0xCCd792f5D06b73685a1b54A32fE786346cAd1894</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Bombcrypto</td>
+			<td class="stakes-td">ccBCOIN</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcC6e7E97A46B6F0eD3bC81518Fc816da78F7cb65">0xcC6e7E97A46B6F0eD3bC81518Fc816da78F7cb65</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Binance Coin</td>
+			<td class="stakes-td">ccBNB</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcCDe29903E621Ca12DF33BB0aD9D1ADD7261Ace9">0xcCDe29903E621Ca12DF33BB0aD9D1ADD7261Ace9</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Ethereum Classic</td>
+			<td class="stakes-td">ccETC</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCCc766f97629a4E14b3af8C91EC54f0b5664A69F">0xCCc766f97629a4E14b3af8C91EC54f0b5664A69F</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Ethereum</td>
+			<td class="stakes-td">ccETH</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcC208c32Cc6919af5d8026dAB7A3eC7A57CD1796">0xcC208c32Cc6919af5d8026dAB7A3eC7A57CD1796</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Cake</td>
+			<td class="stakes-td">ccCAKE</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC2D45F7fE1b8864a13F5D552345eB3f5a005FEd">0xCC2D45F7fE1b8864a13F5D552345eB3f5a005FEd</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Wall Street Games</td>
+			<td class="stakes-td">ccWSG</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xccEbb9f0EE6D720DebccEE42f52915037f774A70">0xccEbb9f0EE6D720DebccEE42f52915037f774A70</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Reef</td>
+			<td class="stakes-td">ccReef</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCc1530716A7eBecFdc7572eDCbF01766f042155c">0xCc1530716A7eBecFdc7572eDCbF01766f042155c</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Bakery</td>
+			<td class="stakes-td">ccRACA</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC8B04c0f7d0797B3BD6b7BE8E0061ac0c3c0A9b">0xCC8B04c0f7d0797B3BD6b7BE8E0061ac0c3c0A9b</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Toncoin</td>
+			<td class="stakes-td">ccTON</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC50D400042177B9DAb6bd31ede73aE8e1ED6F08">0xCC50D400042177B9DAb6bd31ede73aE8e1ED6F08</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">BitTorrent</td>
+			<td class="stakes-td">ccBTT</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCc99C6635Fae4DAcF967a3fc2913ab9fa2b349C3">0xCc99C6635Fae4DAcF967a3fc2913ab9fa2b349C3</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">BitBook</td>
+			<td class="stakes-td">ccBBT</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcCCaC2f22752bbe77D4DAb4e9421F2AC6c988427">0xcCCaC2f22752bbe77D4DAb4e9421F2AC6c988427</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">ZOO Crypto World</td>
+			<td class="stakes-td">ccZOO</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC9aFcE1e164fC2b381A3a104909e2D9E52cfB5D">0xCC9aFcE1e164fC2b381A3a104909e2D9E52cfB5D</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Callisto Enterprise</td>
+			<td class="stakes-td">CLOE</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187">0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187</a></td>
+			<td class="stakes-td">ERC 20</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Binance Coin</td>
+			<td class="stakes-td">ccBNB</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC78D0A86B0c0a3b32DEBd773Ec815130F9527CF">0xCC78D0A86B0c0a3b32DEBd773Ec815130F9527CF</a></td>
+			<td class="stakes-td">ERC 20</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Ethereum</td>
+			<td class="stakes-td">ccETH</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xcC00860947035a26Ffe24EcB1301ffAd3a89f910">0xcC00860947035a26Ffe24EcB1301ffAd3a89f910</a></td>
+			<td class="stakes-td">ERC 20</td>
+		</tr>
+	  </tbody>
+	</table>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>

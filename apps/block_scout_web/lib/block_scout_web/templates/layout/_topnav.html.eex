@@ -68,7 +68,7 @@
                 </span>
                 <%= gettext("Tokens") %>
               </a>
-              <div class="dropdown-menu" aria-labeledby="navbarTransactionsDropdown"> 
+              <div class="dropdown-menu" aria-labeledby="navbarTransactionsDropdown">
                 <%= link(
                       gettext("All"),
                       class: "dropdown-item #{tab_status("tokens", @conn.request_path)}",
@@ -100,11 +100,16 @@
                 </span>
                 <%= gettext("Tokens") %>
               </a>
-              <div class="dropdown-menu" aria-labeledby="navbarTransactionsDropdown"> 
+              <div class="dropdown-menu" aria-labeledby="navbarTransactionsDropdown">
                 <%= link(
                       gettext("All"),
                       class: "dropdown-item #{tab_status("tokens", @conn.request_path)}",
                       to: tokens_path(@conn, :index)
+                    ) %>
+                <%= link(
+                      gettext("Trusted tokens"),
+                      class: "dropdown-item #{tab_status("trusted", @conn.request_path)}",
+                      to: trusted_path(@conn, :index)
                     ) %>
                 <%= link(
                       gettext("Ether"),
@@ -123,7 +128,7 @@
               </span>
               <%= gettext("APIs") %>
             </a>
-            <div class="dropdown-menu" aria-labeledby="navbarTransactionsDropdown"> 
+            <div class="dropdown-menu" aria-labeledby="navbarTransactionsDropdown">
               <%= link(
                     gettext("GraphQL"),
                     class: "dropdown-item #{tab_status("graphiql", @conn.request_path)}",
@@ -162,7 +167,7 @@
                 </a>
               <% end %>
               <%= if apps_menu == true do %>
-                <%= for %{url: url, title: title} <- external_apps_list() do %> 
+                <%= for %{url: url, title: title} <- external_apps_list() do %>
                     <a href="<%= url %>" class="dropdown-item" target="_blank"><%= title %>
                       <span class="external-link-icon">
                         <%= render BlockScoutWeb.IconsView, "_external_link.html" %>
