@@ -51,3 +51,19 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and pull request protoco
 [![License: GPL v3.0](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
+
+## Callisto Enviroment Variables
+SECRET_KEY_BASE and DATABASE_URL are examples.
+```
+export COIN=CLO
+export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blockscout" - !Example
+export ETHEREUM_JSONRPC_HTTP_URL="http://193.105.159.180:8545"
+export ETHEREUM_JSONRPC_VARIANT="geth"
+export LOGO="/images/callisto_logo_color.svg"
+export LOGO_FOOTER="/images/callisto_logo.svg"
+export NETWORK="Callisto"
+export SUBNETWORK="Mainnet"
+export COINGECKO_COIN_ID=callisto
+export SECRET_KEY_BASE=aHL37ktzAVB4YTPdeab3EWOWOnw77U7EdrJtTKJ39HUcGXEKB9MGX6eC19Y5s4Vg
+export INDEXER_MEMORY_LIMIT="8Gb"
+```
