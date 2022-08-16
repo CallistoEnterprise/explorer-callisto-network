@@ -44,7 +44,7 @@
 			<td class="stakes-td">Callisto Enterprise</td>
 			<td class="stakes-td">CLOE</td>
     		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187">0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187</a></td>
-			<td class="stakes-td">ERC 223</td>
+			<td class="stakes-td">ERC 20</td>
 		</tr>
 		<tr>
 			<td class="stakes-td">Fantom</td>
@@ -147,12 +147,6 @@
 			<td class="stakes-td">ccZOO</td>
     		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC9aFcE1e164fC2b381A3a104909e2D9E52cfB5D">0xCC9aFcE1e164fC2b381A3a104909e2D9E52cfB5D</a></td>
 			<td class="stakes-td">ERC 223</td>
-		</tr>
-		<tr>
-			<td class="stakes-td">Callisto Enterprise</td>
-			<td class="stakes-td">CLOE</td>
-    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187">0x1eAa43544dAa399b87EEcFcC6Fa579D5ea4A6187</a></td>
-			<td class="stakes-td">ERC 20</td>
 		</tr>
 		<tr>
 			<td class="stakes-td">Binance Coin</td>
