@@ -120,6 +120,12 @@
 		</tr>
 		<tr>
 			<td class="stakes-td">Bakery</td>
+			<td class="stakes-td">ccBAKE</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCCeC9F26F52E8e0D1d88365004f4F475f5274279">0xCCeC9F26F52E8e0D1d88365004f4F475f5274279</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
+			<td class="stakes-td">Radio Caca</td>
 			<td class="stakes-td">ccRACA</td>
     		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC8B04c0f7d0797B3BD6b7BE8E0061ac0c3c0A9b">0xCC8B04c0f7d0797B3BD6b7BE8E0061ac0c3c0A9b</a></td>
 			<td class="stakes-td">ERC 223</td>
