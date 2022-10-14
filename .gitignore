@@ -9,6 +9,9 @@
 /*.ez
 /logs
 
+# mix dialyzer artifacts
+/priv/plts
+
 # Generated on crash by the VM
 erl_crash.dump
 
@@ -37,7 +40,7 @@ screenshots/
 # Sobelow
 .sobelow
 
-# osx 
+# osx
 .DS_Store
 
 # mix phx.gen.cert self-signed certs for dev
@@ -45,3 +48,8 @@ screenshots/
 
 /docker-compose/postgres-data
 /docker-compose/tmp
+
+.idea/
+*.iml
+
+.vscode

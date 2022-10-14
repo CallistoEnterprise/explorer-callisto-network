@@ -36,7 +36,6 @@ const appJs =
   {
     entry: {
       'app': './js/app.js',
-      'stakes': './js/pages/stakes.js',
       'chart-loader': './js/chart-loader.js',
       'balance-chart-loader': './js/balance-chart-loader.js',
       'chain': './js/pages/chain.js',
@@ -63,7 +62,6 @@ const appJs =
       'async-listing-load': './js/lib/async_listing_load',
       'non-critical': './css/non-critical.scss',
       'main-page': './css/main-page.scss',
-      'staking': './css/stakes.scss',
       'tokens': './js/pages/token/search.js',
       'text-ad': './js/lib/text_ad.js',
       'banner': './js/lib/banner.js',
@@ -71,8 +69,10 @@ const appJs =
       'search-results': './js/pages/search-results/search.js',
       'token-overview': './js/pages/token/overview.js',
       'export-csv': './css/export-csv.scss',
-      'datepicker': './js/lib/datepicker.js',
-      'dropzone': './js/lib/dropzone.js'
+      'csv-download': './js/lib/csv_download.js',
+      'dropzone': './js/lib/dropzone.js',
+      'delete-item-handler': './js/pages/account/delete_item_handler.js',
+      'public-tags-request-form': './js/lib/public_tags_request_form.js'
     },
     output: {
       filename: '[name].js',
@@ -158,11 +158,7 @@ const appJs =
       new ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
       new webpack.DefinePlugin({
         'process.env.SOCKET_ROOT': JSON.stringify(process.env.SOCKET_ROOT),
-        'process.env.NETWORK_PATH': JSON.stringify(process.env.NETWORK_PATH),
-        'process.env.CHAIN_ID': JSON.stringify(process.env.CHAIN_ID),
-        'process.env.JSON_RPC': JSON.stringify(process.env.JSON_RPC),
-        'process.env.SUBNETWORK': JSON.stringify(process.env.SUBNETWORK),
-        'process.env.COIN_NAME': JSON.stringify(process.env.COIN_NAME)
+        'process.env.NETWORK_PATH': JSON.stringify(process.env.NETWORK_PATH)
       }),
       new webpack.ProvidePlugin({
         process: 'process/browser',

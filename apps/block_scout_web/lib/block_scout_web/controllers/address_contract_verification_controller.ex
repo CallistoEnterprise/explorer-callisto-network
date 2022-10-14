@@ -14,12 +14,12 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
 
   def new(conn, %{"address_id" => address_hash_string}) do
     if Chain.smart_contract_fully_verified?(address_hash_string) do
-      address_path =
+      address_contract_path =
         conn
-        |> address_path(:show, address_hash_string)
+        |> address_contract_path(:index, address_hash_string)
         |> Controller.full_path()
 
-      redirect(conn, to: address_path)
+      redirect(conn, to: address_contract_path)
     else
       changeset =
         SmartContract.changeset(
@@ -49,10 +49,29 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
         conn,
         %{
           "smart_contract" => smart_contract,
+          "external_libraries" => external_libraries,
+          "file" => files,
+          "verification_type" => "multi-part-files"
+        }
+      ) do
+    files_array =
+      files
+      |> Map.values()
+      |> read_files()
+
+    Que.add(SolidityPublisherWorker, {"multipart", smart_contract, files_array, external_libraries, conn})
+
+    send_resp(conn, 204, "")
+  end
+
+  def create(
+        conn,
+        %{
+          "smart_contract" => smart_contract,
           "external_libraries" => external_libraries
         }
       ) do
-    Que.add(SolidityPublisherWorker, {smart_contract["address_hash"], smart_contract, external_libraries, conn})
+    Que.add(SolidityPublisherWorker, {"flattened", smart_contract, external_libraries, conn})
 
     send_resp(conn, 204, "")
   end
@@ -70,7 +89,7 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
 
     with %Plug.Upload{path: path} <- get_one_json(files_array),
          {:ok, json_input} <- File.read(path) do
-      Que.add(SolidityPublisherWorker, {smart_contract, json_input, conn})
+      Que.add(SolidityPublisherWorker, {"json_web", smart_contract, json_input, conn})
     else
       _ ->
         nil
@@ -156,16 +175,18 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
           prepare_verification_error(error, address_hash_string, conn),
           :on_demand
         )
-    end
-  end
 
-  def get_metadata_and_publish(address_hash_string, nil) do
-    case Sourcify.get_metadata(address_hash_string) do
-      {:ok, verification_metadata} ->
-        process_metadata_and_publish(address_hash_string, verification_metadata, false)
+      {:error, error} ->
+        EventsPublisher.broadcast(
+          prepare_verification_error(error, address_hash_string, conn),
+          :on_demand
+        )
 
-      {:error, %{"error" => error}} ->
-        {:error, error: error}
+      _ ->
+        EventsPublisher.broadcast(
+          prepare_verification_error("Unexpected error", address_hash_string, conn),
+          :on_demand
+        )
     end
   end
 
@@ -175,28 +196,43 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
         process_metadata_and_publish(address_hash_string, verification_metadata, false, conn)
 
       {:error, %{"error" => error}} ->
-        EventsPublisher.broadcast(
-          prepare_verification_error(error, address_hash_string, conn),
-          :on_demand
-        )
+        return_sourcify_error(conn, error, address_hash_string)
     end
   end
 
   defp process_metadata_and_publish(address_hash_string, verification_metadata, is_partial, conn \\ nil) do
-    %{
-      "params_to_publish" => params_to_publish,
-      "abi" => abi,
-      "secondary_sources" => secondary_sources,
-      "compilation_target_file_path" => compilation_target_file_path
-    } = Sourcify.parse_params_from_sourcify(address_hash_string, verification_metadata)
+    case Sourcify.parse_params_from_sourcify(address_hash_string, verification_metadata) do
+      %{
+        "params_to_publish" => params_to_publish,
+        "abi" => abi,
+        "secondary_sources" => secondary_sources,
+        "compilation_target_file_path" => compilation_target_file_path
+      } ->
+        ContractController.publish(conn, %{
+          "addressHash" => address_hash_string,
+          "params" => Map.put(params_to_publish, "partially_verified", is_partial),
+          "abi" => abi,
+          "secondarySources" => secondary_sources,
+          "compilationTargetFilePath" => compilation_target_file_path
+        })
 
-    ContractController.publish(conn, %{
-      "addressHash" => address_hash_string,
-      "params" => Map.put(params_to_publish, "partially_verified", is_partial),
-      "abi" => abi,
-      "secondarySources" => secondary_sources,
-      "compilationTargetFilePath" => compilation_target_file_path
-    })
+      {:error, :metadata} ->
+        return_sourcify_error(conn, Sourcify.no_metadata_message(), address_hash_string)
+
+      _ ->
+        return_sourcify_error(conn, Sourcify.failed_verification_message(), address_hash_string)
+    end
+  end
+
+  defp return_sourcify_error(nil, error, _address_hash_string) do
+    {:error, error: error}
+  end
+
+  defp return_sourcify_error(conn, error, address_hash_string) do
+    EventsPublisher.broadcast(
+      prepare_verification_error(error, address_hash_string, conn),
+      :on_demand
+    )
   end
 
   def prepare_files_array(files) do
@@ -207,6 +243,14 @@ defmodule BlockScoutWeb.AddressContractVerificationController do
     files_array
     |> Enum.filter(fn file -> file.content_type == "application/json" end)
     |> Enum.at(0)
+  end
+
+  # sobelow_skip ["Traversal.FileModule"]
+  defp read_files(plug_uploads) do
+    Enum.reduce(plug_uploads, %{}, fn %Plug.Upload{path: path, filename: file_name}, acc ->
+      {:ok, file_content} = File.read(path)
+      Map.put(acc, file_name, file_content)
+    end)
   end
 
   defp prepare_verification_error(msg, address_hash_string, conn) do
