@@ -4,6 +4,8 @@ $dark-light-bg: #282945; // pills bg shade
 $dark-light: #313355; // tile light top share
 $labels-dark: #8a8dba; // header nav, labels
 $dark-stakes-banned-background: #3e314c;
+$additional-font: #fff;
+$btn-line-color: #fff;
 
 // Switcher
 .dark-mode-changer {
@@ -573,6 +575,7 @@ $dark-stakes-banned-background: #3e314c;
 		&:-webkit-autofill:hover,
 		&:-webkit-autofill:focus {
 			caret-color: #fff;
+			box-shadow: 0 0 0px 1000px $dark-light inset;
 			-webkit-text-fill-color: #fff;
 			-webkit-box-shadow: 0 0 0px 1000px $dark-light inset;
 		}

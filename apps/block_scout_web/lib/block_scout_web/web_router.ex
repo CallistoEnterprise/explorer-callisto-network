@@ -150,6 +150,8 @@ defmodule BlockScoutWeb.WebRouter do
 
     resources("/tokens", TokensController, only: [:index])
 
+    resources("/trusted", TrustedController, only: [:index])
+
     resources "/address", AddressController, only: [:show] do
       resources("/transactions", AddressTransactionController, only: [:index], as: :transaction)
 
