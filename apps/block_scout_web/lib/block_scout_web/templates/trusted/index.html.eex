@@ -155,6 +155,12 @@
 			<td class="stakes-td">ERC 223</td>
 		</tr>
 		<tr>
+			<td class="stakes-td">Trust Wallet Token</td>
+			<td class="stakes-td">ccTWT</td>
+    		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0xCC099e75152ACCda96d54FAbaf6e333ca44AD86e">0xCC099e75152ACCda96d54FAbaf6e333ca44AD86e</a></td>
+			<td class="stakes-td">ERC 223</td>
+		</tr>
+		<tr>
 			<td class="stakes-td">VIPSVERSE Token</td>
 			<td class="stakes-td">VVT</td>
     		<td class="stakes-td"><a href="https://explorer.callisto.network/address/0x9f9b6DD3DEDB4D2e6C679bCb8782f546400e9A53">0x9f9b6DD3DEDB4D2e6C679bCb8782f546400e9A53</a></td>
