@@ -57,15 +57,17 @@ SECRET_KEY_BASE and DATABASE_URL are examples.
 export COIN=CLO
 export COIN_NAME=CLO
 export CHAIN_ID=820
-export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/blockscout"
-export ETHEREUM_JSONRPC_HTTP_URL="http://193.105.159.180:8545"
+export DATABASE_URL="postgresql://user:password@localhost:5432/blockscout"
+export ETHEREUM_JSONRPC_HTTP_URL="http://127.0.0.1:8545"
 export ETHEREUM_JSONRPC_VARIANT="geth"
 export LOGO="/images/callisto_logo_color.svg"
 export LOGO_FOOTER="/images/callisto_logo.svg"
 export NETWORK="Callisto"
 export SUBNETWORK="Mainnet"
 export EXCHANGE_RATES_COINGECKO_COIN_ID=callisto
-export SECRET_KEY_BASE=aHL37ktzAVB4YTPdeab3EWOWOnw77U7EdrJtTKJ39HUcGXFKB9MGX6eC19Y5s4Vg
+export SECRET_KEY_BASE=abEuWD0tg4KHwAY9lPU953lmbyV/TrLGrw+62UC+CU5JN+tP18eC2Y81p3P7YpHk
+export ENABLE_RUST_VERIFICATION_SERVICE=true
+export RUST_VERIFICATION_SERVICE_URL=http://0.0.0.0:8043/
 ```
 
 Optional:
