@@ -51,16 +51,9 @@ defmodule Indexer.Fetcher.TokenInstance do
   end
 
   @impl BufferedTask
-  def run([%{contract_address_hash: hash, token_id: token_id, token_ids: token_ids}], _json_rpc_named_arguments) do
-    all_token_ids =
-      cond do
-        is_nil(token_id) -> token_ids
-        is_nil(token_ids) -> [token_id]
-        true -> [token_id] ++ token_ids
-      end
-
-    Enum.each(all_token_ids, &fetch_instance(hash, &1))
-    update_current_token_balances(hash, all_token_ids)
+  def run([%{contract_address_hash: hash, token_id: token_id}], _json_rpc_named_arguments) do
+    fetch_instance(hash, token_id)
+    update_current_token_balances(hash, token_id)
 
     :ok
   end
@@ -99,16 +92,17 @@ defmodule Indexer.Fetcher.TokenInstance do
     end
   end
 
-  defp update_current_token_balances(token_contract_address_hash, token_ids) do
-    token_ids
-    |> Enum.map(&instance_owner_request(token_contract_address_hash, &1))
+  defp update_current_token_balances(token_contract_address_hash, token_id) do
+    token_id
+    |> instance_owner_request(token_contract_address_hash)
+    |> List.wrap()
     |> InstanceOwnerReader.get_owner_of()
     |> Enum.map(&current_token_balances_import_params/1)
     |> all_import_params()
     |> Chain.import()
   end
 
-  defp instance_owner_request(token_contract_address_hash, token_id) do
+  defp instance_owner_request(token_id, token_contract_address_hash) do
     %{
       token_contract_address_hash: to_string(token_contract_address_hash),
       token_id: Decimal.to_integer(token_id)
@@ -153,23 +147,31 @@ defmodule Indexer.Fetcher.TokenInstance do
   @doc """
   Fetches token instance data asynchronously.
   """
-  def async_fetch(token_transfers) when is_list(token_transfers) do
+  def async_fetch(data) do
+    async_fetch(data, __MODULE__.Supervisor.disabled?())
+  end
+
+  def async_fetch(_data, true), do: :ok
+
+  def async_fetch(token_transfers, _disabled?) when is_list(token_transfers) do
     data =
       token_transfers
-      |> Enum.reject(fn token_transfer -> is_nil(token_transfer.token_id) and is_nil(token_transfer.token_ids) end)
+      |> Enum.reject(fn token_transfer -> is_nil(token_transfer.token_ids) end)
       |> Enum.map(fn token_transfer ->
-        %{
-          contract_address_hash: token_transfer.token_contract_address_hash,
-          token_id: token_transfer.token_id,
-          token_ids: token_transfer.token_ids
-        }
+        Enum.map(token_transfer.token_ids, fn token_id ->
+          %{
+            contract_address_hash: token_transfer.token_contract_address_hash,
+            token_id: token_id
+          }
+        end)
       end)
+      |> List.flatten()
       |> Enum.uniq()
 
     BufferedTask.buffer(__MODULE__, data)
   end
 
-  def async_fetch(data) do
+  def async_fetch(data, _disabled?) do
     BufferedTask.buffer(__MODULE__, data)
   end
 end
