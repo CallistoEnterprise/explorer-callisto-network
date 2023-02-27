@@ -3,24 +3,19 @@ defmodule Indexer.Fetcher.TokenInstance do
   Fetches information about a token instance.
   """
 
-  use Indexer.Fetcher
+  use Indexer.Fetcher, restart: :permanent
   use Spandex.Decorators
 
   require Logger
 
-  alias Explorer.{Chain, Repo}
-  alias Explorer.Chain.{Address, Cache.BlockNumber, Token}
-  alias Explorer.Token.{InstanceMetadataRetriever, InstanceOwnerReader}
+  alias Explorer.Chain
+  alias Explorer.Token.InstanceMetadataRetriever
   alias Indexer.BufferedTask
 
   @behaviour BufferedTask
 
-  @defaults [
-    flush_interval: 300,
-    max_batch_size: 1,
-    max_concurrency: 10,
-    task_supervisor: Indexer.Fetcher.TokenInstance.TaskSupervisor
-  ]
+  @default_max_batch_size 1
+  @default_max_concurrency 10
 
   @doc false
   def child_spec([init_options, gen_server_options]) do
@@ -33,7 +28,7 @@ defmodule Indexer.Fetcher.TokenInstance do
     end
 
     merged_init_opts =
-      @defaults
+      defaults()
       |> Keyword.merge(mergeable_init_options)
       |> Keyword.put(:state, state)
 
@@ -53,7 +48,6 @@ defmodule Indexer.Fetcher.TokenInstance do
   @impl BufferedTask
   def run([%{contract_address_hash: hash, token_id: token_id}], _json_rpc_named_arguments) do
     fetch_instance(hash, token_id)
-    update_current_token_balances(hash, token_id)
 
     :ok
   end
@@ -92,58 +86,6 @@ defmodule Indexer.Fetcher.TokenInstance do
     end
   end
 
-  defp update_current_token_balances(token_contract_address_hash, token_id) do
-    token_id
-    |> instance_owner_request(token_contract_address_hash)
-    |> List.wrap()
-    |> InstanceOwnerReader.get_owner_of()
-    |> Enum.map(&current_token_balances_import_params/1)
-    |> all_import_params()
-    |> Chain.import()
-  end
-
-  defp instance_owner_request(token_id, token_contract_address_hash) do
-    %{
-      token_contract_address_hash: to_string(token_contract_address_hash),
-      token_id: Decimal.to_integer(token_id)
-    }
-  end
-
-  defp current_token_balances_import_params(%{token_contract_address_hash: hash, token_id: token_id, owner: owner}) do
-    %{
-      value: Decimal.new(1),
-      block_number: BlockNumber.get_max(),
-      value_fetched_at: DateTime.utc_now(),
-      token_id: token_id,
-      token_type: Repo.get_by(Token, contract_address_hash: hash).type,
-      address_hash: owner,
-      token_contract_address_hash: hash
-    }
-  end
-
-  defp all_import_params(balances_import_params) do
-    addresses_import_params =
-      balances_import_params
-      |> Enum.reduce([], fn %{address_hash: address_hash}, acc ->
-        case Repo.get_by(Address, hash: address_hash) do
-          nil -> [%{hash: address_hash} | acc]
-          _address -> acc
-        end
-      end)
-      |> case do
-        [] -> %{}
-        params -> %{addresses: %{params: params}}
-      end
-
-    current_token_balances_import_params = %{
-      address_current_token_balances: %{
-        params: balances_import_params
-      }
-    }
-
-    Map.merge(current_token_balances_import_params, addresses_import_params)
-  end
-
   @doc """
   Fetches token instance data asynchronously.
   """
@@ -173,5 +115,15 @@ defmodule Indexer.Fetcher.TokenInstance do
 
   def async_fetch(data, _disabled?) do
     BufferedTask.buffer(__MODULE__, data)
+  end
+
+  defp defaults do
+    [
+      flush_interval: :timer.seconds(3),
+      max_concurrency: Application.get_env(:indexer, __MODULE__)[:concurrency] || @default_max_concurrency,
+      max_batch_size: Application.get_env(:indexer, __MODULE__)[:batch_size] || @default_max_batch_size,
+      poll: true,
+      task_supervisor: Indexer.Fetcher.TokenInstance.TaskSupervisor
+    ]
   end
 end

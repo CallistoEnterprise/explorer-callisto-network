@@ -28,6 +28,7 @@ defmodule Explorer.ChainTest do
   }
 
   alias Explorer.{Chain, Etherscan}
+  alias Explorer.Chain.Cache.Block, as: BlockCache
   alias Explorer.Chain.Cache.Transaction, as: TransactionCache
   alias Explorer.Chain.InternalTransaction.Type
 
@@ -44,10 +45,10 @@ defmodule Explorer.ChainTest do
   describe "remove_nonconsensus_blocks_from_pending_ops/0" do
     test "removes pending ops for nonconsensus blocks" do
       block = insert(:block)
-      insert(:pending_block_operation, block: block, fetch_internal_transactions: true)
+      insert(:pending_block_operation, block: block, block_number: block.number)
 
       nonconsensus_block = insert(:block, consensus: false)
-      insert(:pending_block_operation, block: nonconsensus_block, fetch_internal_transactions: true)
+      insert(:pending_block_operation, block: nonconsensus_block, block_number: nonconsensus_block.number)
 
       :ok = Chain.remove_nonconsensus_blocks_from_pending_ops()
 
@@ -57,13 +58,13 @@ defmodule Explorer.ChainTest do
 
     test "removes pending ops for nonconsensus blocks by block hashes" do
       block = insert(:block)
-      insert(:pending_block_operation, block: block, fetch_internal_transactions: true)
+      insert(:pending_block_operation, block: block, block_number: block.number)
 
       nonconsensus_block = insert(:block, consensus: false)
-      insert(:pending_block_operation, block: nonconsensus_block, fetch_internal_transactions: true)
+      insert(:pending_block_operation, block: nonconsensus_block, block_number: nonconsensus_block.number)
 
       nonconsensus_block1 = insert(:block, consensus: false)
-      insert(:pending_block_operation, block: nonconsensus_block1, fetch_internal_transactions: true)
+      insert(:pending_block_operation, block: nonconsensus_block1, block_number: nonconsensus_block1.number)
 
       :ok = Chain.remove_nonconsensus_blocks_from_pending_ops([nonconsensus_block1.hash])
 
@@ -102,6 +103,11 @@ defmodule Explorer.ChainTest do
 
       assert is_integer(addresses_with_balance)
       assert addresses_with_balance == 3
+    end
+
+    test "returns 0 on empty table" do
+      start_supervised!(AddressesCounter)
+      assert 0 == Chain.address_estimated_count()
     end
   end
 
@@ -1209,7 +1215,7 @@ defmodule Explorer.ChainTest do
       |> insert()
       |> with_block(block)
 
-      insert(:pending_block_operation, block: block, fetch_internal_transactions: true)
+      insert(:pending_block_operation, block: block, block_number: block.number)
 
       refute Chain.finished_internal_transactions_indexing?()
     end
@@ -1470,6 +1476,9 @@ defmodule Explorer.ChainTest do
 
   describe "indexed_ratio_blocks/0" do
     setup do
+      Supervisor.terminate_child(Explorer.Supervisor, Explorer.Chain.Cache.Block.child_id())
+      Supervisor.restart_child(Explorer.Supervisor, Explorer.Chain.Cache.Block.child_id())
+
       on_exit(fn ->
         Application.put_env(:indexer, :first_block, "")
       end)
@@ -1477,8 +1486,10 @@ defmodule Explorer.ChainTest do
 
     test "returns indexed ratio" do
       for index <- 5..9 do
-        insert(:block, number: index)
+        insert(:block, number: index, consensus: true)
       end
+
+      BlockCache.estimated_count()
 
       assert Decimal.compare(Chain.indexed_ratio_blocks(), Decimal.from_float(0.5)) == :eq
     end
@@ -1489,9 +1500,11 @@ defmodule Explorer.ChainTest do
 
     test "returns 1.0 if fully indexed blocks" do
       for index <- 0..9 do
-        insert(:block, number: index)
+        insert(:block, number: index, consensus: true)
         Process.sleep(200)
       end
+
+      BlockCache.estimated_count()
 
       assert Decimal.compare(Chain.indexed_ratio_blocks(), 1) == :eq
     end
@@ -1500,9 +1513,11 @@ defmodule Explorer.ChainTest do
       Application.put_env(:indexer, :first_block, "5")
 
       for index <- 5..9 do
-        insert(:block, number: index)
+        insert(:block, number: index, consensus: true)
         Process.sleep(200)
       end
+
+      BlockCache.estimated_count()
 
       assert Decimal.compare(Chain.indexed_ratio_blocks(), 1) == :eq
     end
@@ -1520,7 +1535,7 @@ defmodule Explorer.ChainTest do
         block = insert(:block, number: index)
 
         if index === 0 || index === 5 || index === 7 do
-          insert(:pending_block_operation, block: block, fetch_internal_transactions: true)
+          insert(:pending_block_operation, block: block, block_number: block.number)
         end
       end
 
@@ -3353,7 +3368,7 @@ defmodule Explorer.ChainTest do
 
       assert [
                %TokenTransfer{
-                 token: %Ecto.Association.NotLoaded{},
+                 token: %Token{},
                  transaction: %Ecto.Association.NotLoaded{}
                }
              ] = Chain.transaction_to_token_transfers(transaction.hash)
@@ -5936,26 +5951,36 @@ defmodule Explorer.ChainTest do
 
     test "combine_proxy_implementation_abi/2 returns empty [] abi if proxy abi is null" do
       proxy_contract_address = insert(:contract_address)
-      assert Chain.combine_proxy_implementation_abi(proxy_contract_address, nil) == []
+
+      assert Chain.combine_proxy_implementation_abi(%SmartContract{address_hash: proxy_contract_address.hash, abi: nil}) ==
+               []
     end
 
     test "combine_proxy_implementation_abi/2 returns [] abi for unverified proxy" do
       proxy_contract_address = insert(:contract_address)
 
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: [], contract_code_md5: "123")
+
       get_eip1967_implementation()
 
-      assert Chain.combine_proxy_implementation_abi(proxy_contract_address, []) == []
+      assert Chain.combine_proxy_implementation_abi(smart_contract) == []
     end
 
     test "combine_proxy_implementation_abi/2 returns proxy abi if implementation is not verified" do
       proxy_contract_address = insert(:contract_address)
-      insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
-      assert Chain.combine_proxy_implementation_abi(proxy_contract_address, @proxy_abi) == @proxy_abi
+
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
+
+      assert Chain.combine_proxy_implementation_abi(smart_contract) == @proxy_abi
     end
 
     test "combine_proxy_implementation_abi/2 returns proxy + implementation abi if implementation is verified" do
       proxy_contract_address = insert(:contract_address)
-      insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
+
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
 
       implementation_contract_address = insert(:contract_address)
 
@@ -5983,7 +6008,7 @@ defmodule Explorer.ChainTest do
         end
       )
 
-      combined_abi = Chain.combine_proxy_implementation_abi(proxy_contract_address.hash, @proxy_abi)
+      combined_abi = Chain.combine_proxy_implementation_abi(smart_contract)
 
       assert Enum.any?(@proxy_abi, fn el -> el == Enum.at(@implementation_abi, 0) end) == false
       assert Enum.any?(@proxy_abi, fn el -> el == Enum.at(@implementation_abi, 1) end) == false
@@ -5993,26 +6018,36 @@ defmodule Explorer.ChainTest do
 
     test "get_implementation_abi_from_proxy/2 returns empty [] abi if proxy abi is null" do
       proxy_contract_address = insert(:contract_address)
-      assert Chain.get_implementation_abi_from_proxy(proxy_contract_address, nil) == []
+
+      assert Chain.get_implementation_abi_from_proxy(%SmartContract{address_hash: proxy_contract_address.hash, abi: nil}) ==
+               []
     end
 
     test "get_implementation_abi_from_proxy/2 returns [] abi for unverified proxy" do
       proxy_contract_address = insert(:contract_address)
 
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: [], contract_code_md5: "123")
+
       get_eip1967_implementation()
 
-      assert Chain.combine_proxy_implementation_abi(proxy_contract_address, []) == []
+      assert Chain.combine_proxy_implementation_abi(smart_contract) == []
     end
 
     test "get_implementation_abi_from_proxy/2 returns [] if implementation is not verified" do
       proxy_contract_address = insert(:contract_address)
-      insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
-      assert Chain.get_implementation_abi_from_proxy(proxy_contract_address, @proxy_abi) == []
+
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
+
+      assert Chain.get_implementation_abi_from_proxy(smart_contract) == []
     end
 
     test "get_implementation_abi_from_proxy/2 returns implementation abi if implementation is verified" do
       proxy_contract_address = insert(:contract_address)
-      insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
+
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: @proxy_abi, contract_code_md5: "123")
 
       implementation_contract_address = insert(:contract_address)
 
@@ -6040,14 +6075,16 @@ defmodule Explorer.ChainTest do
         end
       )
 
-      implementation_abi = Chain.get_implementation_abi_from_proxy(proxy_contract_address.hash, @proxy_abi)
+      implementation_abi = Chain.get_implementation_abi_from_proxy(smart_contract)
 
       assert implementation_abi == @implementation_abi
     end
 
     test "get_implementation_abi_from_proxy/2 returns implementation abi in case of EIP-1967 proxy pattern" do
       proxy_contract_address = insert(:contract_address)
-      insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: [], contract_code_md5: "123")
+
+      smart_contract =
+        insert(:smart_contract, address_hash: proxy_contract_address.hash, abi: [], contract_code_md5: "123")
 
       implementation_contract_address = insert(:contract_address)
 
@@ -6077,7 +6114,7 @@ defmodule Explorer.ChainTest do
         end
       )
 
-      implementation_abi = Chain.get_implementation_abi_from_proxy(proxy_contract_address.hash, [])
+      implementation_abi = Chain.get_implementation_abi_from_proxy(smart_contract)
 
       assert implementation_abi == @implementation_abi
     end

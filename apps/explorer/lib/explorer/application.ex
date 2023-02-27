@@ -20,6 +20,7 @@ defmodule Explorer.Application do
     NetVersion,
     Transaction,
     Transactions,
+    TransactionsApiV2,
     Uncles
   }
 
@@ -66,6 +67,7 @@ defmodule Explorer.Application do
       con_cache_child_spec(MarketHistoryCache.cache_name()),
       con_cache_child_spec(RSK.cache_name(), ttl_check_interval: :timer.minutes(1), global_ttl: :timer.minutes(30)),
       Transactions,
+      TransactionsApiV2,
       Accounts,
       Uncles,
       {Redix, redix_opts()}
@@ -106,7 +108,9 @@ defmodule Explorer.Application do
       configure(Explorer.Validator.MetadataProcessor),
       configure(Explorer.Tags.AddressTag.Cataloger),
       configure(MinMissingBlockNumber),
-      configure(TokenTransferTokenIdMigration.Supervisor)
+      configure(TokenTransferTokenIdMigration.Supervisor),
+      configure(Explorer.Chain.Fetcher.CheckBytecodeMatchingOnDemand),
+      configure(Explorer.Chain.Fetcher.FetchValidatorInfoOnDemand)
     ]
     |> List.flatten()
   end
