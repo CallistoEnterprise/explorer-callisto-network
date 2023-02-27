@@ -1,0 +1,6 @@
+{
+    "recommendations": [ 
+        "phoenixframework.phoenix",
+        "jakebecker.elixir-ls" 
+    ]
+}
