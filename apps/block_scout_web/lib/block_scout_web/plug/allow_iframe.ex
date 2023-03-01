@@ -9,6 +9,8 @@ defmodule BlockScoutWeb.Plug.AllowIframe do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    Conn.delete_resp_header(conn, "x-frame-options")
+    conn = Conn.delete_resp_header(conn, "x-frame-options")
+    conn
+    |> Conn.put_resp_header("content-security-policy", "frame-ancestors https://listing-callisto-network.netlify.app/")
   end
 end
